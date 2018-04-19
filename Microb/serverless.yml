@@ -8,19 +8,19 @@ provider:
   versionFunctions: false
   stage: dev
   region: us-east-1
-#  iamRoleStatements:
-#    - Effect: Allow
-#      Action:
-#        - # TODO Add permissions to interact with DynamoDB
-#      Resource:
-#        - Fn::GetAtt: [ DynamoDBTable, Arn ]
-#        - Fn::Join: ["/", [ Fn::GetAtt: [DynamoDBTable, Arn], "index", "*"]]
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "dynamodb:*"
+      Resource:
+        - Fn::GetAtt: [ DynamoDBTable, Arn ]
+        - Fn::Join: ["/", [ Fn::GetAtt: [DynamoDBTable, Arn], "index", "*"]]
 
 # you can define service wide environment variables here
   environment:
     STAGE_NAME: ${self:custom.stageName}
-#    DYNAMO_TABLE_NAME:
-#      Ref: # TODO Reference the CloudFormation dynamo table here
+    DYNAMO_TABLE_NAME:
+      Ref: DynamoDBTable
 
 # Custom values that can be referenced in the Cloud Formation template
 custom:
@@ -40,11 +40,36 @@ functions:
       - http:
           path: "items"
           method: "get"
-
-  # TODO Add missing functions (Create, Read, Update, Delete)
+  create:
+    handler: ServerlessApi::Microb.Create.Function::LambdaHandler
+    events:
+      - http:
+          path: "item"
+          method: "post"
+  delete:
+    handler: ServerlessApi::Microb.Delete.Function::LambdaHandler
+    events:
+      - http:
+          path: "item/{id}"
+          method: "delete"
+  read:
+    handler: ServerlessApi::Microb.Read.Function::LambdaHandler
+    events:
+      - http:
+          path: "item/{id}"
+          method: "get"
+  update:
+    handler: ServerlessApi::Microb.Update.Function::LambdaHandler
+    events:
+      - http:
+          path: "item/{id}"
+          method: "put"
+    # TODO Add missing functions (Create, Read, Update, Delete)
 
 # you can add CloudFormation resource templates here
-#resources:
-#  Parameters: # TODO include the parameter section from the infrastructure/microb-table_cfn.yml file
-#  Resources:
-#    DynamoDBTable: # TODO include the DynamoDBTable section from the infrastructure/microb-table_cfn.yml file
+resources:
+  Parameters: ${file(./infrastructure/microb-table_cfn.yml):Parameters}
+  Resources:
+    DynamoDBTable: ${file(./infrastructure/microb-table_cfn.yml):Resources.DynamoDBTable}
+    
+    # TODO include the DynamoDBTable section from the infrastructure/microb-table_cfn.yml file

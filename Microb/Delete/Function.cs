@@ -11,10 +11,10 @@ namespace Microb.Delete {
         
         //--- Methods ---
         [LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
-        public APIGatewayProxyResponse LambdaHandler(APIGatewayProxyRequest request) {
+        public async Task<APIGatewayProxyResponse> LambdaHandler(APIGatewayProxyRequest request) {
             LambdaLogger.Log(JsonConvert.SerializeObject(request));
             try {
-                // TODO Delete an item
+                var result = await DeleteItem(request.PathParameters["id"]);
                 return new APIGatewayProxyResponse {
                     StatusCode = 200
                 };

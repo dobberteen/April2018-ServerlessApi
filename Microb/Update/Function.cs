@@ -11,10 +11,12 @@ namespace Microb.Update {
         
         //--- Methods ---
         [LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
-        public APIGatewayProxyResponse LambdaHandler(APIGatewayProxyRequest request) {
+        public async Task<APIGatewayProxyResponse> LambdaHandler(APIGatewayProxyRequest request) {
             LambdaLogger.Log(JsonConvert.SerializeObject(request));
             try {
-                // TODO Read single item
+                var item = JsonConvert.DeserializeObject<MicrobItem>(request.Body);
+                await UpdateItem(item.id, item.title, item.content);
+
                 return new APIGatewayProxyResponse {
                     StatusCode = 200
                 };

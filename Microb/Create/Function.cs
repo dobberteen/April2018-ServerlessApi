@@ -11,11 +11,12 @@ namespace Microb.Create {
         
         //--- Methods ---
         [LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
-        public APIGatewayProxyResponse LambdaHandler(APIGatewayProxyRequest request) {
+        public async Task<APIGatewayProxyResponse> LambdaHandler(APIGatewayProxyRequest request) {
             LambdaLogger.Log(JsonConvert.SerializeObject(request));
             try {
-                // TODO Create an item
-                return new APIGatewayProxyResponse {
+                var item = JsonConvert.DeserializeObject<MicrobItem>(request.Body);
+                await CreateItem(item.title, item.content);
+               return new APIGatewayProxyResponse {
                     StatusCode = 200
                 };
             }

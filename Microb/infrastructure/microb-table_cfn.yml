@@ -1,7 +1,7 @@
 Parameters:
   TableName:
     Type: String
-    Default: MicrobItems
+    Default: MicrobItemsbd2
     Description: The name of the dynamodb table
   PartitionKey:
     Type: String
